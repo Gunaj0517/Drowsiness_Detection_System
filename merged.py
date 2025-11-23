@@ -5,7 +5,6 @@ import time
 import pyautogui
 import pygame
 import csv
-from fer import FER
 from utils import calculate_ear, calculate_mar, LEFT_EYE_INDICES, RIGHT_EYE_INDICES, MOUTH_INDICES
 from sound_manager import init_sound, load_alarm, play_alarm, stop_alarm
 
@@ -37,12 +36,10 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.7
 )
 
-emotion_detector = FER(mtcnn=True)
 
-# PARAMETERS 
 EAR_THRESHOLD = 0.25
 MAR_THRESHOLD = 0.5
-CONSECUTIVE_FRAMES_THRESHOLD = 15
+CONSECUTIVE_FRAMES_THRESHOLD = 30
 HEAD_TILT_THRESHOLD = -0.08
 
 last_gesture_time = 0
@@ -153,17 +150,6 @@ while True:
 
     rgb_frame.flags.writeable = True
 
-    # EMOTION DETECTION
-    emotion_text = "Emotion: None"
-    emotion_color = (255, 255, 255)
-
-    emotion_results = emotion_detector.detect_emotions(frame)
-    if emotion_results:
-        emotions = emotion_results[0]["emotions"]
-        top_emotion = max(emotions, key=emotions.get)
-        emotion_text = f"Emotion: {top_emotion} ({emotions[top_emotion]:.2f})"
-        emotion_color = (0, 255, 255)
-
     # DROWSINESS DETECTION
     drowsy_status = "Awake"
     status_color = (0, 255, 0)
@@ -240,8 +226,6 @@ while True:
         cv2.putText(display_frame, f"Looking Down: {is_looking_down}", (20, 240),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
 
-        cv2.putText(display_frame, emotion_text, (20, 280),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, emotion_color, 2)
 
     # HAND GESTURE DETECTION
     if results_hands.multi_hand_landmarks:
